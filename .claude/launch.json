@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "九萬畝圖鑑",
+      "runtimeExecutable": "powershell",
+      "runtimeArgs": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "C:/Users/531/Desktop/九萬畝/server.ps1"],
+      "autoPort": true
+    }
+  ]
+}

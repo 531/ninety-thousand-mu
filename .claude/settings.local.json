@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(New-Item -ItemType Directory -Force \"C:\\\\Users\\\\531\\\\Desktop\\\\九萬畝\\\\.claude\")",
+      "Bash(Out-Null)",
+      "Bash(Write-Output \"done\")",
+      "Bash(mkdir -p \"C:/Users/531/Desktop/九萬畝/.claude\")",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(\"C:/Users/531/AppData/Local/Microsoft/WindowsApps/python3.exe\" --version)",
+      "PowerShell(\\(Get-Item 'C:\\\\Users\\\\531\\\\Desktop\\\\九萬畝\\\\icons_data.js'\\).Length)",
+      "mcp__Claude_in_Chrome__tabs_context_mcp",
+      "PowerShell(netstat -ano)",
+      "PowerShell($tcp = New-Object System.Net.Sockets.TcpClient; try { $tcp.Connect\\('localhost',3000\\); Write-Host \"Server OK on port 3000\"; $tcp.Close\\(\\) } catch { Write-Host \"Server not running\" })",
+      "PowerShell(Get-Process -Name powershell | Where-Object { $_.MainWindowTitle -eq \"\" } | Select-Object Id, CPU, StartTime | Sort-Object StartTime)",
+      "PowerShell(Stop-Process -Id 76548 -Force; Start-Sleep -Milliseconds 500; Start-Process powershell -ArgumentList \"-NoProfile -ExecutionPolicy Bypass -File C:/Users/531/Desktop/九萬畝/server.ps1\" -WindowStyle Hidden; Start-Sleep -Milliseconds 800; Write-Host \"Server restarted\")",
+      "PowerShell($r = Invoke-WebRequest -Uri \"http://localhost:3457/soldiers_data.js\" -UseBasicParsing; $r.Content.Substring\\(0, 200\\))",
+      "Bash(powershell -Command \"Get-Content 'C:\\\\Users\\\\531\\\\Desktop\\\\九萬畝\\\\portrait_data.js' -TotalCount 5\")"
+    ]
+  }
+}

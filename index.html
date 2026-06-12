@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>九萬畝 · 圖鑑</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
+  <script src="icons_data.js"></script>
+  <script src="soldiers_data.js"></script>
+  <script src="equip_data.js"></script>
+  <script src="portrait_data.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:         #C8A878;
+      --bg-dot:     #B89060;
+      --surface:    #F5E6C4;
+      --surface2:   #E8D0A0;
+      --border:     #B08848;
+      --shadow:     #7A5020;
+      --text-h:     #3C1E08;
+      --text-b:     #6B3E18;
+      --text-muted: #9B7050;
+      --gold:       #F5C518;
+      --gold-glow:  rgba(245,197,24,0.45);
+      --star-empty: #C4A060;
+      --green:      #52A020;
+      --green-dark: #2E6010;
+      --header-bg:  #4A2808;
+      --header-rim: #C88030;
+      --tab-bar:    #6A3E18;
+    }
+
+    body {
+      font-family: 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+      background-color: var(--bg);
+      background-image: radial-gradient(circle, var(--bg-dot) 1px, transparent 1px);
+      background-size: 20px 20px;
+      min-height: 100vh;
+      color: var(--text-b);
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: linear-gradient(180deg, #2E1608 0%, var(--header-bg) 60%, #6A3810 100%);
+      border-bottom: 5px solid var(--header-rim);
+      padding: 14px 20px 12px;
+      text-align: center;
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    }
+
+    .site-title {
+      font-size: 26px;
+      font-weight: 900;
+      color: var(--gold);
+      letter-spacing: 0.18em;
+      text-shadow:
+        2px 0   0 #6B3000,
+        0   2px 0 #6B3000,
+        2px 2px 0 #6B3000,
+        0   0  16px var(--gold-glow);
+    }
+
+    .site-sub {
+      font-size: 10px;
+      color: #C09050;
+      letter-spacing: 8px;
+      margin-top: 3px;
+      font-weight: 500;
+    }
+
+    /* ── TABS ── */
+    .tab-bar {
+      display: flex;
+      padding: 0 16px;
+      gap: 4px;
+      background: var(--tab-bar);
+      border-bottom: 4px solid var(--header-rim);
+    }
+
+    .tab-btn {
+      padding: 9px 24px 7px;
+      font-size: 14px;
+      font-weight: 700;
+      font-family: inherit;
+      border: 2px solid transparent;
+      border-bottom: none;
+      border-radius: 8px 8px 0 0;
+      cursor: pointer;
+      background: #8B5028;
+      color: #D4A060;
+      transition: background 0.12s, color 0.12s;
+    }
+
+    .tab-btn.active {
+      background: var(--surface);
+      color: var(--text-h);
+      border-color: var(--border);
+      position: relative;
+      bottom: -3px;
+      padding-bottom: 10px;
+    }
+
+    .tab-btn:not(.active):hover { background: #A06030; }
+
+    /* ── MAIN ── */
+    main {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 22px 16px 48px;
+    }
+
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* section divider */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .divider-line {
+      flex: 1;
+      height: 2px;
+      background: linear-gradient(to right, var(--border), transparent);
+    }
+
+    .divider-line.rev {
+      background: linear-gradient(to left, var(--border), transparent);
+    }
+
+    .divider-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-h);
+      white-space: nowrap;
+      background: var(--surface2);
+      border: 2px solid var(--border);
+      border-radius: 6px;
+      padding: 2px 12px;
+    }
+
+    .count {
+      text-align: right;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+
+    /* ── GRID ── */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 10px 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      position: relative;
+      box-shadow: 4px 4px 0 var(--shadow);
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.08s ease, box-shadow 0.08s ease;
+      overflow: hidden;
+    }
+
+    .card:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 6px 6px 0 var(--shadow);
+    }
+
+    .card:active {
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0 var(--shadow);
+    }
+
+    /* rarity colour strip at bottom */
+    .card::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 4px;
+      border-radius: 0 0 8px 8px;
+    }
+
+    .card.r2::after { background: #52A020; }
+    .card.r3::after { background: #2196F3; }
+    .card.r4::after { background: #9C27B0; }
+    .card.r5::after { background: linear-gradient(90deg,#FF8A00,#F5C518,#FF8A00); }
+
+    /* green upgrade leaf badge */
+    .upgrade {
+      position: absolute;
+      top: -1px; right: 8px;
+      background: var(--green);
+      border: 2px solid var(--green-dark);
+      border-top: none;
+      border-radius: 0 0 6px 6px;
+      padding: 0 5px 3px;
+      font-size: 11px;
+      font-weight: 900;
+      color: #fff;
+      line-height: 1.5;
+    }
+
+    /* soldier category badge */
+    .cat-badge {
+      position: absolute;
+      top: -1px; left: 8px;
+      border: 2px solid rgba(0,0,0,0.25);
+      border-top: none;
+      border-radius: 0 0 6px 6px;
+      padding: 0 6px 3px;
+      font-size: 10px;
+      font-weight: 900;
+      color: #fff;
+      line-height: 1.6;
+    }
+
+    .cat-badge.槍兵  { background: #B03020; }
+    .cat-badge.盾兵  { background: #2060A0; }
+    .cat-badge.弓兵  { background: #356820; }
+    .cat-badge.騎兵  { background: #6B1FA2; }
+    .cat-badge.攻城  { background: #8B5E00; }
+
+    /* soldier card strip colours */
+    .card.cat-槍兵::after  { background: #C04030; }
+    .card.cat-盾兵::after  { background: #2070B0; }
+    .card.cat-弓兵::after  { background: #407030; }
+    .card.cat-騎兵::after  { background: #7B2FA8; }
+    .card.cat-攻城::after  { background: linear-gradient(90deg,#8B5E00,#D4A010,#8B5E00); }
+
+    /* icon box */
+    .icon-box {
+      width: 64px;
+      height: 64px;
+      border-radius: 10px;
+      border: 2px solid var(--border);
+      position: relative;
+      overflow: hidden;
+      flex-shrink: 0;
+      background: var(--surface2);
+    }
+
+    /* 50×50 精準裁切圖，直接縮放填滿 64×64 框格 */
+    .icon-box img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
+
+    /* stars */
+    .stars { display: flex; gap: 2px; }
+
+    .stars i {
+      font-style: normal;
+      font-size: 14px;
+      color: var(--star-empty);
+      line-height: 1;
+    }
+
+    .stars i.on {
+      color: var(--gold);
+      text-shadow: 0 0 5px var(--gold-glow);
+    }
+
+    /* name */
+    .card-name {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-h);
+      text-align: center;
+      line-height: 1.4;
+    }
+
+    /* ── WIP placeholder ── */
+    .wip {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-muted);
+    }
+
+    .wip .wip-icon { font-size: 48px; margin-bottom: 12px; }
+    .wip p { font-size: 14px; font-weight: 700; }
+    .wip small { font-size: 12px; }
+
+    /* ── FILTER BAR ── */
+    .filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+      align-items: center;
+    }
+
+    .filter-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .filter-btn {
+      padding: 4px 14px;
+      border-radius: 20px;
+      border: 2px solid var(--border);
+      background: var(--surface2);
+      color: var(--text-b);
+      font-size: 12px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.1s, color 0.1s, border-color 0.1s;
+    }
+
+    .filter-btn:hover { background: var(--surface); }
+
+    .filter-btn.active {
+      background: var(--shadow);
+      color: #F5E6C4;
+      border-color: var(--shadow);
+    }
+
+    .filter-btn.f5.active { background: #B06000; border-color: #B06000; }
+    .filter-btn.f4.active { background: #7B1FA2; border-color: #7B1FA2; color: #fff; }
+    .filter-btn.f3.active { background: #1565C0; border-color: #1565C0; color: #fff; }
+    .filter-btn.f2.active { background: #2E7D32; border-color: #2E7D32; color: #fff; }
+
+    .filter-btn.cSpear.active   { background: #B03020; border-color: #B03020; color: #fff; }
+    .filter-btn.cShield.active  { background: #2060A0; border-color: #2060A0; color: #fff; }
+    .filter-btn.cBow.active     { background: #356820; border-color: #356820; color: #fff; }
+    .filter-btn.cCav.active     { background: #6B1FA2; border-color: #6B1FA2; color: #fff; }
+    .filter-btn.cSiege.active   { background: #8B5E00; border-color: #8B5E00; color: #fff; }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center;
+      padding: 28px 16px 36px;
+      color: var(--text-muted);
+      font-size: 11px;
+      letter-spacing: 2px;
+    }
+
+    /* ── PORTRAIT GRID ── */
+    .portrait-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 0;
+      margin-bottom: 20px;
+    }
+
+    .portrait-card {
+      align-self: start;      /* 防止 grid stretch 撐高卡片 */
+      cursor: default;
+      transition: transform 0.12s ease;
+      display: flex;
+      flex-direction: column;  /* 框條在上，圖片在下，不疊加 */
+    }
+
+    .portrait-card:hover { transform: translateY(-4px); }
+
+    /* 左右側邊框 */
+    .portrait-card {
+      outline: 3px solid #7A3A18;
+      outline-offset: -1px;
+    }
+
+    /* 頂部捲軸框條：flex 子項排在圖片上方，不會蓋住名字 */
+    .portrait-card::before {
+      content: '';
+      height: 14px;
+      flex-shrink: 0;
+      background: linear-gradient(180deg,
+        #E0A070 0%,
+        #C87858 12%,
+        #AD614A 35%,
+        #AD614A 72%,
+        #633A2A 88%,
+        #392418 100%
+      );
+    }
+
+    /* 底部捲軸框條 */
+    .portrait-card::after {
+      content: '';
+      height: 10px;
+      flex-shrink: 0;
+      background: linear-gradient(0deg,
+        #E0A070 0%,
+        #C87858 12%,
+        #AD614A 35%,
+        #AD614A 72%,
+        #633A2A 88%,
+        #392418 100%
+      );
+    }
+
+    /* 需要裁底部的圖片：用 wrapper div 控制高度 + overflow:hidden */
+    .portrait-crop {
+      overflow: hidden;   /* 把 img 底部溢出的漏框截掉 */
+      width: 100%;
+      line-height: 0;     /* 消除 inline 空白 */
+      box-sizing: border-box; /* padding 算在 aspect-ratio 高度內，不撐大卡片 */
+      padding-top: 5px;
+      background: #F7EBD6; /* 奶油色，模擬遊戲卡面留白 */
+    }
+    .portrait-crop img {
+      width: 100%;
+      height: 100%;       /* 填滿 wrapper，搭配 object-fit 對齊底部（畫框在圖片下方） */
+      object-fit: cover;
+      object-position: top;
+    }
+
+    /* 不需裁切的圖片（底部乾淨）直接放在 card 裡 */
+    .portrait-card > img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .portrait-card img {
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 660px) {
+      .card-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+      .portrait-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+      .site-title { font-size: 22px; }
+      .tab-btn { padding: 8px 14px 6px; font-size: 13px; }
+    }
+
+    @media (max-width: 380px) {
+      .tab-btn { padding: 7px 10px 5px; font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="site-title">九 萬 畝</div>
+  <div class="site-sub">圖 鑑 資 料 庫</div>
+</header>
+
+<div class="tab-bar">
+  <button class="tab-btn active" data-page="policy">政策</button>
+  <button class="tab-btn"        data-page="soldier">士兵</button>
+  <button class="tab-btn"        data-page="equip">裝備</button>
+  <button class="tab-btn"        data-page="portrait">畫像</button>
+</div>
+
+<main>
+  <!-- 政策 -->
+  <div id="page-policy" class="page active">
+    <div class="filter-bar">
+      <span class="filter-label">篩選星數：</span>
+      <button class="filter-btn active" data-stars="0">全部</button>
+      <button class="filter-btn f5" data-stars="5">★★★★★</button>
+      <button class="filter-btn f4" data-stars="4">★★★★</button>
+      <button class="filter-btn f3" data-stars="3">★★★</button>
+      <button class="filter-btn f2" data-stars="2">★★</button>
+    </div>
+    <p class="count" id="policy-count">共 51 項政策</p>
+    <div class="divider">
+      <div class="divider-line"></div>
+      <span class="divider-label">所有政策</span>
+      <div class="divider-line rev"></div>
+    </div>
+    <div class="card-grid" id="policy-grid"></div>
+  </div>
+
+  <!-- 士兵 -->
+  <div id="page-soldier" class="page">
+    <div class="filter-bar">
+      <span class="filter-label">兵種：</span>
+      <button class="filter-btn active"          data-cat="全部">全部</button>
+      <button class="filter-btn cSpear"          data-cat="槍兵">槍兵</button>
+      <button class="filter-btn cShield"         data-cat="盾兵">盾兵</button>
+      <button class="filter-btn cBow"            data-cat="弓兵">弓兵</button>
+      <button class="filter-btn cCav"            data-cat="騎兵">騎兵</button>
+      <button class="filter-btn cSiege"          data-cat="攻城">攻城</button>
+    </div>
+    <p class="count" id="soldier-count">共 26 名士兵</p>
+    <div class="card-grid" id="soldier-grid"></div>
+  </div>
+
+  <!-- 裝備 -->
+  <div id="page-equip" class="page">
+    <div class="filter-bar">
+      <span class="filter-label">篩選：</span>
+      <button class="filter-btn active" data-equip-filter="全部">全部</button>
+      <button class="filter-btn"        data-equip-filter="普通">普通裝備</button>
+      <button class="filter-btn cSpear" data-equip-filter="槍兵">槍兵</button>
+      <button class="filter-btn cShield" data-equip-filter="盾兵">盾兵</button>
+      <button class="filter-btn cBow"   data-equip-filter="弓兵">弓兵</button>
+      <button class="filter-btn cCav"   data-equip-filter="騎兵">騎兵</button>
+    </div>
+    <p class="count" id="equip-count">共 66 件裝備</p>
+    <div id="equip-sections"></div>
+  </div>
+
+  <!-- 畫像 -->
+  <div id="page-portrait" class="page">
+    <div class="filter-bar">
+      <span class="filter-label">篩選：</span>
+      <button class="filter-btn active" data-portrait-filter="全部">全部</button>
+      <button class="filter-btn" data-portrait-filter="5">5★</button>
+      <button class="filter-btn" data-portrait-filter="4">4★</button>
+      <button class="filter-btn" data-portrait-filter="3">3★</button>
+    </div>
+    <p class="count" id="portrait-count">共 55 名英雄</p>
+    <div class="portrait-grid" id="portrait-grid"></div>
+  </div>
+</main>
+
+<footer>九萬畝 玩家社群圖鑑 · 資料持續更新中</footer>
+
+<script>
+/* ── Data ── */
+const POLICIES = [
+  { name: '五穀豐登', stars: 3, upgrade: true  },
+  { name: '工業革命', stars: 4, upgrade: true  },
+  { name: '尚武精神', stars: 3, upgrade: true  },
+  { name: '火速行軍', stars: 4, upgrade: true  },
+  { name: '精進不懈', stars: 4, upgrade: true  },
+  { name: '韜光養晦', stars: 4, upgrade: true  },
+  { name: '招賢納士', stars: 3, upgrade: false },
+  { name: '徵募無阻', stars: 3, upgrade: true  },
+  { name: '通商惠工', stars: 2, upgrade: false },
+  { name: '擴編協議', stars: 4, upgrade: false },
+  { name: '烽火支援', stars: 4, upgrade: false },
+  { name: '計日程功', stars: 4, upgrade: true  },
+  { name: '超級賞金', stars: 5, upgrade: true  },
+  { name: '鑄火重燃', stars: 4, upgrade: true  },
+  { name: '坐吃利息', stars: 3, upgrade: true  },
+  { name: '書鐵多多', stars: 3, upgrade: true  },
+  { name: '人才濟濟', stars: 5, upgrade: true  },
+  { name: '守護之心', stars: 5, upgrade: false },
+  { name: '農場大咖', stars: 4, upgrade: true  },
+  { name: '石場大咖', stars: 4, upgrade: true  },
+  { name: '木場大咖', stars: 4, upgrade: true  },
+  { name: '車水馬龍', stars: 3, upgrade: true  },
+  { name: '精工巧策', stars: 3, upgrade: true  },
+  { name: '交能易作', stars: 3, upgrade: true  },
+  { name: '守衛光環', stars: 5, upgrade: true  },
+  { name: '進攻號角', stars: 5, upgrade: true  },
+  { name: '護甲專精', stars: 3, upgrade: false },
+  { name: '武器專精', stars: 3, upgrade: false },
+  { name: '一級之力', stars: 4, upgrade: true  },
+  { name: '坐收漁利', stars: 4, upgrade: true  },
+  { name: '強取豪奪', stars: 4, upgrade: false },
+  { name: '風調雨順', stars: 3, upgrade: true  },
+  { name: '天降甘霖', stars: 2, upgrade: false },
+  { name: '妙手回春', stars: 3, upgrade: true  },
+  { name: '懸壺濟世', stars: 2, upgrade: false },
+  { name: '千錘百煉', stars: 3, upgrade: true  },
+  { name: '招兵買馬', stars: 3, upgrade: true  },
+  { name: '群賢畢至', stars: 5, upgrade: true  },
+  { name: '一本萬利', stars: 5, upgrade: true  },
+  { name: '基石永固', stars: 5, upgrade: true  },
+  { name: '野怪剋星', stars: 4, upgrade: true  },
+  { name: '攻堅能手', stars: 5, upgrade: true  },
+  { name: '生生不息', stars: 3, upgrade: true  },
+  { name: '強者為王', stars: 5, upgrade: true  },
+  { name: '摧枯拉朽', stars: 4, upgrade: false },
+  { name: '攻城略地', stars: 5, upgrade: false },
+  { name: '城壘連鋒', stars: 4, upgrade: false },
+  { name: '槍兵專精', stars: 4, upgrade: true  },
+  { name: '盾兵專精', stars: 4, upgrade: true  },
+  { name: '弓兵專精', stars: 5, upgrade: true  },
+  { name: '騎兵專精', stars: 4, upgrade: true  },
+];
+
+const SOLDIERS = [
+  // 槍兵
+  { name: '長槍兵',   stars: 5, cat: '槍兵' },
+  { name: '長矛兵',   stars: 5, cat: '槍兵' },
+  { name: '長戈兵',   stars: 5, cat: '槍兵' },
+  { name: '陌刀兵',   stars: 5, cat: '槍兵' },
+  { name: '長劍兵',   stars: 5, cat: '槍兵' },
+  { name: '雙槍兵',   stars: 5, cat: '槍兵' },
+  // 盾兵
+  { name: '刀盾兵',   stars: 5, cat: '盾兵' },
+  { name: '重盾兵',   stars: 5, cat: '盾兵' },
+  { name: '槍盾兵',   stars: 5, cat: '盾兵' },
+  { name: '錘盾兵',   stars: 5, cat: '盾兵' },
+  { name: '劍盾兵',   stars: 5, cat: '盾兵' },
+  { name: '斧盾兵',   stars: 5, cat: '盾兵' },
+  // 弓兵
+  { name: '長弓兵',   stars: 5, cat: '弓兵' },
+  { name: '連弩兵',   stars: 5, cat: '弓兵' },
+  { name: '毒弓兵',   stars: 5, cat: '弓兵' },
+  { name: '獵人',     stars: 5, cat: '弓兵' },
+  { name: '強弩兵',   stars: 5, cat: '弓兵' },
+  { name: '火弓兵',   stars: 5, cat: '弓兵' },
+  // 騎兵
+  { name: '劍騎兵',   stars: 5, cat: '騎兵' },
+  { name: '槍騎兵',   stars: 5, cat: '騎兵' },
+  { name: '大刀騎兵', stars: 5, cat: '騎兵' },
+  { name: '重騎兵',   stars: 5, cat: '騎兵' },
+  { name: '弓騎兵',   stars: 5, cat: '騎兵' },
+  { name: '斧騎兵',   stars: 5, cat: '騎兵' },
+  // 攻城
+  { name: '投石車',   stars: 5, cat: '攻城' },
+  { name: '大弩車',   stars: 5, cat: '攻城' },
+];
+
+/* ── Render helpers ── */
+function makeStars(n, max = 5) {
+  return Array.from({ length: max }, (_, i) =>
+    `<i class="${i < n ? 'on' : ''}">★</i>`
+  ).join('');
+}
+
+
+/* ── Star filter ── */
+let currentFilter = 0;
+
+function renderPoliciesFiltered() {
+  const filtered = currentFilter === 0
+    ? POLICIES
+    : POLICIES.filter(p => p.stars === currentFilter);
+  const grid = document.getElementById('policy-grid');
+  grid.innerHTML = filtered.map(p => `
+    <div class="card r${p.stars}">
+      ${p.upgrade ? '<div class="upgrade">↑</div>' : ''}
+      <div class="icon-box">
+        <img src="${(typeof ICON_DATA !== 'undefined' && ICON_DATA[p.name]) || ''}" alt="${p.name}" onerror="this.style.display='none'">
+      </div>
+      <div class="stars">${makeStars(p.stars)}</div>
+      <div class="card-name">${p.name}</div>
+    </div>
+  `).join('');
+  document.getElementById('policy-count').textContent =
+    `共 ${filtered.length} 項政策${currentFilter ? '（' + currentFilter + '★）' : ''}`;
+}
+
+document.querySelectorAll('#page-policy .filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#page-policy .filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentFilter = parseInt(btn.dataset.stars);
+    renderPoliciesFiltered();
+  });
+});
+
+/* ── Equipment data ── */
+const EQUIPS = [
+  /* 普通裝備 (42) */
+  { name: '回血刀',   stars: 4, cat: null },
+  { name: '暴擊刀',   stars: 4, cat: null },
+  { name: '流星錘',   stars: 4, cat: null },
+  { name: '雙斧',     stars: 4, cat: null },
+  { name: '月牙刀',   stars: 4, cat: null },
+  { name: '龍淵劍',   stars: 4, cat: null },
+  { name: '鎖子甲',   stars: 2, cat: null },
+  { name: '酒葫蘆',   stars: 4, cat: null },
+  { name: '反傷甲',   stars: 3, cat: null },
+  { name: '銅盾',     stars: 4, cat: null },
+  { name: '黃鉞',     stars: 4, cat: null },
+  { name: '鐵盾',     stars: 3, cat: null },
+  { name: '吸血劍',   stars: 4, cat: null },
+  { name: '環刀',     stars: 4, cat: null },
+  { name: '黑曜鎧',   stars: 4, cat: null },
+  { name: '明光鎧',   stars: 3, cat: null },
+  { name: '百辟刀',   stars: 2, cat: null },
+  { name: '飛鏢',     stars: 4, cat: null },
+  { name: '藤盾',     stars: 4, cat: null },
+  { name: '狼牙棒',   stars: 4, cat: null },
+  { name: '軍旗',     stars: 4, cat: null },
+  { name: '乾坤刀',   stars: 4, cat: null },
+  { name: '炎陽鎧',   stars: 3, cat: null },
+  { name: '定心盔',   stars: 4, cat: null },
+  { name: '赤金盾',   stars: 4, cat: null },
+  { name: '銀蛇鞭',   stars: 4, cat: null },
+  { name: '金絲軟甲', stars: 4, cat: null },
+  { name: '雙鉤',     stars: 4, cat: null },
+  { name: '護心鏡',   stars: 4, cat: null },
+  { name: '戰斧',     stars: 3, cat: null },
+  { name: '玉佩',     stars: 4, cat: null },
+  { name: '千機傘',   stars: 4, cat: null },
+  { name: '焚心戒',   stars: 4, cat: null },
+  { name: '鉤鐮',     stars: 4, cat: null },
+  { name: '血怒腰帶', stars: 4, cat: null },
+  { name: '尖刺球',   stars: 4, cat: null },
+  { name: '閃避鞋',   stars: 4, cat: null },
+  { name: '血滴子',   stars: 4, cat: null },
+  { name: '時光旗',   stars: 4, cat: null },
+  { name: '沙漏',     stars: 4, cat: null },
+  { name: '眩目墜',   stars: 4, cat: null },
+  { name: '玄鐵杖',   stars: 5, cat: null },
+  /* 專屬裝備 — 槍兵 (6) */
+  { name: '長槍',   stars: 4, cat: '槍兵' },
+  { name: '長矛',   stars: 5, cat: '槍兵' },
+  { name: '長戈',   stars: 4, cat: '槍兵' },
+  { name: '陌刀',   stars: 4, cat: '槍兵' },
+  { name: '雙手劍', stars: 4, cat: '槍兵' },
+  { name: '雙戟',   stars: 4, cat: '槍兵' },
+  /* 專屬裝備 — 盾兵 (6) */
+  { name: '木盾',   stars: 4, cat: '盾兵' },
+  { name: '重盾',   stars: 4, cat: '盾兵' },
+  { name: '架',     stars: 5, cat: '盾兵' },
+  { name: '鐵錘',   stars: 4, cat: '盾兵' },
+  { name: '劍盾',   stars: 4, cat: '盾兵' },
+  { name: '斧盾',   stars: 4, cat: '盾兵' },
+  /* 專屬裝備 — 弓兵 (6) */
+  { name: '長弓',   stars: 5, cat: '弓兵' },
+  { name: '連弩',   stars: 4, cat: '弓兵' },
+  { name: '毒弓',   stars: 4, cat: '弓兵' },
+  { name: '獵弓',   stars: 4, cat: '弓兵' },
+  { name: '強弩',   stars: 4, cat: '弓兵' },
+  { name: '火弓',   stars: 4, cat: '弓兵' },
+  /* 專屬裝備 — 騎兵 (6) */
+  { name: '大劍',   stars: 4, cat: '騎兵' },
+  { name: '長戟',   stars: 4, cat: '騎兵' },
+  { name: '偃月刀', stars: 4, cat: '騎兵' },
+  { name: '大錘',   stars: 5, cat: '騎兵' },
+  { name: '反曲弓', stars: 5, cat: '騎兵' },
+  { name: '開山斧', stars: 5, cat: '騎兵' },
+];
+
+/* ── Equipment render + filter ── */
+let currentEquipFilter = '全部';
+
+function makeEquipCard(e) {
+  const isExcl = e.cat !== null;
+  const cardCls = isExcl ? `card cat-${e.cat}` : `card r${e.stars}`;
+  const badge   = isExcl ? `<div class="cat-badge ${e.cat}">${e.cat}</div>` : '';
+  const src = (typeof EQUIP_DATA !== 'undefined' && EQUIP_DATA[e.name]) || '';
+  return `<div class="${cardCls}">
+    ${badge}
+    <div class="icon-box"><img src="${src}" alt="${e.name}" onerror="this.style.display='none'"></div>
+    <div class="stars">${makeStars(e.stars)}</div>
+    <div class="card-name">${e.name}</div>
+  </div>`;
+}
+
+function renderEquipment() {
+  const f = currentEquipFilter;
+  const normal  = (f === '全部' || f === '普通') ? EQUIPS.filter(e => !e.cat) : [];
+  const excl    = (f === '全部') ? EQUIPS.filter(e => e.cat) :
+                  (f === '普通') ? [] :
+                  EQUIPS.filter(e => e.cat === f);
+  const total = normal.length + excl.length;
+  document.getElementById('equip-count').textContent =
+    `共 ${total} 件裝備${f !== '全部' ? '（' + f + '）' : ''}`;
+
+  let html = '';
+  if (normal.length) {
+    if (f === '全部') html += divider('普通裝備');
+    html += `<div class="card-grid">${normal.map(makeEquipCard).join('')}</div>`;
+    if (excl.length) html += '<div style="height:20px"></div>';
+  }
+  if (excl.length) {
+    if (f === '全部') {
+      html += divider('專屬裝備');
+      ['槍兵','盾兵','弓兵','騎兵'].forEach(cat => {
+        const items = excl.filter(e => e.cat === cat);
+        if (!items.length) return;
+        html += `<p style="font-size:12px;font-weight:700;color:var(--text-muted);margin:0 0 8px 2px;">${cat}專屬</p>`;
+        html += `<div class="card-grid" style="margin-bottom:18px;">${items.map(makeEquipCard).join('')}</div>`;
+      });
+    } else {
+      html += `<div class="card-grid">${excl.map(makeEquipCard).join('')}</div>`;
+    }
+  }
+  document.getElementById('equip-sections').innerHTML = html;
+}
+
+function divider(label) {
+  return `<div class="divider">
+    <div class="divider-line"></div>
+    <span class="divider-label">${label}</span>
+    <div class="divider-line rev"></div>
+  </div>`;
+}
+
+document.querySelectorAll('#page-equip .filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#page-equip .filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentEquipFilter = btn.dataset.equipFilter;
+    renderEquipment();
+  });
+});
+
+/* ── Soldier render + filter ── */
+let currentSoldierCat = '全部';
+
+function renderSoldiers() {
+  const list = currentSoldierCat === '全部'
+    ? SOLDIERS
+    : SOLDIERS.filter(s => s.cat === currentSoldierCat);
+  const grid = document.getElementById('soldier-grid');
+  grid.innerHTML = list.map(s => `
+    <div class="card cat-${s.cat}">
+      <div class="cat-badge ${s.cat}">${s.cat}</div>
+      <div class="icon-box">
+        <img src="${(typeof SOLDIER_DATA !== 'undefined' && SOLDIER_DATA[s.name]) || ''}" alt="${s.name}" onerror="this.style.display='none'">
+      </div>
+      <div class="stars">${makeStars(s.stars)}</div>
+      <div class="card-name">${s.name}</div>
+    </div>
+  `).join('');
+  document.getElementById('soldier-count').textContent =
+    `共 ${list.length} 名士兵${currentSoldierCat !== '全部' ? '（' + currentSoldierCat + '）' : ''}`;
+}
+
+document.querySelectorAll('#page-soldier .filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#page-soldier .filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentSoldierCat = btn.dataset.cat;
+    renderSoldiers();
+  });
+});
+
+/* ── Tab switch ── */
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('page-' + btn.dataset.page).classList.add('active');
+  });
+});
+
+/* ── Portrait data ── */
+const PORTRAITS = [
+  { name: '陳到',   stars: 5 }, { name: '趙雲',   stars: 5 }, { name: '楊妙真', stars: 5 },
+  { name: '張郃',   stars: 4 }, { name: '秦良玉', stars: 4 }, { name: '白起',   stars: 5 },
+  { name: '周瑜',   stars: 4 }, { name: '李牧',   stars: 3 }, { name: '李嗣業', stars: 4 },
+  { name: '于禁',   stars: 4 }, { name: '姜維',   stars: 4 }, { name: '呂蒙',   stars: 4 },
+  { name: '辛棄疾', stars: 4 }, { name: '文鴦',   stars: 4 }, { name: '典韋',   stars: 4 },
+  { name: '秦瓊',   stars: 4 }, { name: '徐盛',   stars: 3 }, { name: '樂進',   stars: 3 },
+  { name: '曹仁',   stars: 4 }, { name: '周泰',   stars: 5 }, { name: '韋孝寬', stars: 3 },
+  { name: '張飛',   stars: 4 }, { name: '高順',   stars: 4 }, { name: '黃蓋',   stars: 4 },
+  { name: '廉頗',   stars: 4 }, { name: '曹操',   stars: 5 }, { name: '鄧艾',   stars: 3 },
+  { name: '孟獲',   stars: 4 }, { name: '黃忠',   stars: 4 }, { name: '韓當',   stars: 3 },
+  { name: '劉備',   stars: 4 }, { name: '劉龍',   stars: 4 }, { name: '貂蟬',   stars: 3 },
+  { name: '王異',   stars: 5 }, { name: '李儒',   stars: 4 }, { name: '養由基', stars: 4 },
+  { name: '孫權',   stars: 4 }, { name: '梁紅玉', stars: 5 }, { name: '曹休',   stars: 4 },
+  { name: '孫尚香', stars: 4 }, { name: '陸遜',   stars: 4 }, { name: '張遼',   stars: 4 },
+  { name: '霍去病', stars: 4 }, { name: '呂布',   stars: 4 }, { name: '馬超',   stars: 4 },
+  { name: '項羽',   stars: 4 }, { name: '關羽',   stars: 5 }, { name: '關銀屏', stars: 5 },
+  { name: '許褚',   stars: 4 }, { name: '裴行儉', stars: 4 }, { name: '董卓',   stars: 4 },
+  { name: '夏侯淵', stars: 4 }, { name: '太史慈', stars: 4 }, { name: '徐晃',   stars: 4 },
+  { name: '程咬金', stars: 4 },
+];
+
+/* ── Portrait render + filter ── */
+let currentPortraitFilter = '全部';
+
+/* 每張圖要保留的像素行數（原始圖 230px 高，底部 N 行是另一張卡的漏框）
+   項羽, 關羽, 關銀屏, 太史慈, 徐晃, 程咬金 底部乾淨，不在表裡 */
+/* 所有畫像統一裁到 y=202（orange-brown底框末端），高度一致 */
+const PORTRAIT_CROP_H = {
+  '陳到':202,'趙雲':202,'楊妙真':202,'周瑜':202,'李牧':202,'李嗣業':202,
+  '秦瓊':202,'徐盛':202,'樂進':202,'霍去病':202,'呂布':202,'馬超':202,
+  '許褚':202,'裴行儉':202,'董卓':202,
+  '辛棄疾':202,'文鴦':202,'典韋':202,'孟獲':202,'黃忠':202,'韓當':202,
+  '王異':202,'李儒':202,'養由基':202,
+  '張飛':202,'高順':202,'黃蓋':202,'廉頗':202,'曹操':202,'鄧艾':202,
+  '孫尚香':202,'陸遜':202,'張遼':202,
+  '張郃':202,'秦良玉':202,'白起':202,'于禁':202,'姜維':202,'呂蒙':202,
+  '劉備':202,'劉龍':202,'貂蟬':202,'孫權':202,'梁紅玉':202,'曹休':202,'夏侯淵':202,
+  '曹仁':202,'周泰':202,'韋孝寬':202,
+  '項羽':202,'關羽':202,'關銀屏':202,'太史慈':202,'徐晃':202,'程咬金':202,
+};
+
+function makePortraitCard(p) {
+  const src = (typeof PORTRAIT_DATA !== 'undefined' && PORTRAIT_DATA[p.name]) || '';
+  const cropH = PORTRAIT_CROP_H[p.name];
+  if (cropH) {
+    /* 有漏框：用 .portrait-crop wrapper div 控制高度。
+       div 是普通 block，aspect-ratio 可正常作用（不被 img intrinsic ratio 覆蓋）；
+       img height:100% 填滿 div，object-fit:cover+top 把底部漏框推出可視範圍。 */
+    return `<div class="portrait-card"><div class="portrait-crop" style="aspect-ratio:140/${cropH}"><img src="${src}" alt="${p.name}" title="${p.name}" onerror="this.style.display='none'"></div></div>`;
+  }
+  /* 底部乾淨：直接放 img，不需 wrapper */
+  return `<div class="portrait-card"><img src="${src}" alt="${p.name}" title="${p.name}" onerror="this.style.display='none'"></div>`;
+}
+
+function renderPortraits() {
+  const f = currentPortraitFilter;
+  const items = f === '全部' ? PORTRAITS : PORTRAITS.filter(p => String(p.stars) === f);
+  document.getElementById('portrait-count').textContent =
+    `共 ${items.length} 名英雄${f !== '全部' ? '（' + f + '★）' : ''}`;
+  document.getElementById('portrait-grid').innerHTML = items.map(makePortraitCard).join('');
+}
+
+document.querySelectorAll('#page-portrait .filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#page-portrait .filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentPortraitFilter = btn.dataset.portraitFilter;
+    renderPortraits();
+  });
+});
+
+/* ── Init ── */
+renderPoliciesFiltered();
+renderSoldiers();
+renderEquipment();
+renderPortraits();
+</script>
+</body>
+</html>
