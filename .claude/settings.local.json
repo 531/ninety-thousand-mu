@@ -14,7 +14,24 @@
       "PowerShell(Get-Process -Name powershell | Where-Object { $_.MainWindowTitle -eq \"\" } | Select-Object Id, CPU, StartTime | Sort-Object StartTime)",
       "PowerShell(Stop-Process -Id 76548 -Force; Start-Sleep -Milliseconds 500; Start-Process powershell -ArgumentList \"-NoProfile -ExecutionPolicy Bypass -File C:/Users/531/Desktop/九萬畝/server.ps1\" -WindowStyle Hidden; Start-Sleep -Milliseconds 800; Write-Host \"Server restarted\")",
       "PowerShell($r = Invoke-WebRequest -Uri \"http://localhost:3457/soldiers_data.js\" -UseBasicParsing; $r.Content.Substring\\(0, 200\\))",
-      "Bash(powershell -Command \"Get-Content 'C:\\\\Users\\\\531\\\\Desktop\\\\九萬畝\\\\portrait_data.js' -TotalCount 5\")"
+      "Bash(powershell -Command \"Get-Content 'C:\\\\Users\\\\531\\\\Desktop\\\\九萬畝\\\\portrait_data.js' -TotalCount 5\")",
+      "Bash(powershell -NoProfile -Command ' *)",
+      "Bash(\"C:/Users/531/AppData/Local/Programs/Python/Python313/python.exe\" add_icon.py)",
+      "Bash(py add_icon.py)",
+      "Bash(python add_icon.py)",
+      "Read(//c/Users/531/AppData/Local/Programs/**)",
+      "Bash(ls /c/Python*)",
+      "Bash(where.exe python *)",
+      "Bash(\"/c/Users/531/AppData/Local/Microsoft/WindowsApps/python.exe\" add_icon.py)",
+      "Bash(certutil -encode \"C:/Users/531/Desktop/九萬畝/icons/懸壺濟世.png\" \"C:/Users/531/Desktop/九萬畝/icons/tmp_b64.txt\")",
+      "Bash(git stash *)",
+      "Bash(\"C:/Windows/py.exe\" patch_icons.py)",
+      "Bash(\"C:/Windows/System32/cmd.exe\" /c \"py patch_icons.py\")",
+      "Bash(powershell -NoProfile -Command '& { cd '\\\\''C:/Users/531/Desktop/九萬畝'\\\\''; $v = \\(Get-Command py -ErrorAction SilentlyContinue\\); if\\($v\\){$v.Source + '\\\\'' patch_icons.py'\\\\''} }')",
+      "Bash(certutil -encode \"C:/Users/531/Desktop/九萬畝/icons/千錘百煉.png\" \"C:/Users/531/Desktop/九萬畝/b64_2.txt\")",
+      "Bash(certutil -encode \"C:/Users/531/Desktop/九萬畝/icons/懸壺濟世.png\" \"C:/Users/531/Desktop/九萬畝/b64_3.txt\")",
+      "Bash(certutil -encode \"C:/Users/531/Desktop/九萬畝/icons/_src_懸壺濟世_src.png\" \"C:/Users/531/Desktop/九萬畝/b3.txt\")",
+      "Bash(certutil -encode \"C:/Users/531/Desktop/九萬畝/icons/_src_千錘百煉_src.png\" \"C:/Users/531/Desktop/九萬畝/b2.txt\")"
     ]
   }
 }

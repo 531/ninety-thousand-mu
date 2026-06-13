@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>九萬畝 · 圖鑑</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
-  <script src="icons_data.js"></script>
+  <script src="icons_data.js?v=4"></script>
   <script src="soldiers_data.js"></script>
   <script src="equip_data.js"></script>
   <script src="portrait_data.js"></script>
@@ -289,6 +289,46 @@
       line-height: 1.4;
     }
 
+    .card-tooltip {
+      position: absolute;
+      inset: 0;
+      border-radius: 8px;
+      background: rgba(44, 18, 4, 0.93);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 10px 10px 14px;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 0.15s ease, visibility 0.15s ease;
+      overflow: hidden;
+    }
+
+    .card:hover .card-tooltip {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .card-effect {
+      font-size: 11px;
+      color: #F5E6C4;
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    .card-req {
+      font-size: 10px;
+      color: #C09050;
+      text-align: center;
+      line-height: 1.4;
+      border-top: 1px solid rgba(255,255,255,0.15);
+      padding-top: 5px;
+      width: 100%;
+    }
+
     /* ── WIP placeholder ── */
     .wip {
       text-align: center;
@@ -535,57 +575,57 @@
 <script>
 /* ── Data ── */
 const POLICIES = [
-  { name: '五穀豐登', stars: 3, upgrade: true  },
-  { name: '工業革命', stars: 4, upgrade: true  },
-  { name: '尚武精神', stars: 3, upgrade: true  },
-  { name: '火速行軍', stars: 4, upgrade: true  },
-  { name: '精進不懈', stars: 4, upgrade: true  },
-  { name: '韜光養晦', stars: 4, upgrade: true  },
-  { name: '招賢納士', stars: 3, upgrade: false },
-  { name: '徵募無阻', stars: 3, upgrade: true  },
-  { name: '通商惠工', stars: 2, upgrade: false },
-  { name: '擴編協議', stars: 4, upgrade: false },
-  { name: '烽火支援', stars: 4, upgrade: false },
-  { name: '計日程功', stars: 4, upgrade: true  },
-  { name: '超級賞金', stars: 5, upgrade: true  },
-  { name: '鑄火重燃', stars: 4, upgrade: true  },
-  { name: '坐吃利息', stars: 3, upgrade: true  },
-  { name: '書鐵多多', stars: 3, upgrade: true  },
-  { name: '人才濟濟', stars: 5, upgrade: true  },
-  { name: '守護之心', stars: 5, upgrade: false },
-  { name: '農場大咖', stars: 4, upgrade: true  },
-  { name: '石場大咖', stars: 4, upgrade: true  },
-  { name: '木場大咖', stars: 4, upgrade: true  },
-  { name: '車水馬龍', stars: 3, upgrade: true  },
-  { name: '精工巧策', stars: 3, upgrade: true  },
-  { name: '交能易作', stars: 3, upgrade: true  },
-  { name: '守衛光環', stars: 5, upgrade: true  },
-  { name: '進攻號角', stars: 5, upgrade: true  },
-  { name: '護甲專精', stars: 3, upgrade: false },
-  { name: '武器專精', stars: 3, upgrade: false },
-  { name: '一級之力', stars: 4, upgrade: true  },
-  { name: '坐收漁利', stars: 4, upgrade: true  },
-  { name: '強取豪奪', stars: 4, upgrade: false },
-  { name: '風調雨順', stars: 3, upgrade: true  },
-  { name: '天降甘霖', stars: 2, upgrade: false },
-  { name: '妙手回春', stars: 3, upgrade: true  },
-  { name: '懸壺濟世', stars: 2, upgrade: false },
-  { name: '千錘百煉', stars: 3, upgrade: true  },
-  { name: '招兵買馬', stars: 3, upgrade: true  },
-  { name: '群賢畢至', stars: 5, upgrade: true  },
-  { name: '一本萬利', stars: 5, upgrade: true  },
-  { name: '基石永固', stars: 5, upgrade: true  },
-  { name: '野怪剋星', stars: 4, upgrade: true  },
-  { name: '攻堅能手', stars: 5, upgrade: true  },
-  { name: '生生不息', stars: 3, upgrade: true  },
-  { name: '強者為王', stars: 5, upgrade: true  },
-  { name: '摧枯拉朽', stars: 4, upgrade: false },
-  { name: '攻城略地', stars: 5, upgrade: false },
-  { name: '城壘連鋒', stars: 4, upgrade: false },
-  { name: '槍兵專精', stars: 4, upgrade: true  },
-  { name: '盾兵專精', stars: 4, upgrade: true  },
-  { name: '弓兵專精', stars: 5, upgrade: true  },
-  { name: '騎兵專精', stars: 4, upgrade: true  },
+  { name: '五穀豐登', stars: 3, upgrade: true,  effect: '基礎產量每小時增加[100/150/200]' },
+  { name: '工業革命', stars: 4, upgrade: true,  effect: '建築修建時間減少[20/40/60]%' },
+  { name: '尚武精神', stars: 3, upgrade: true,  effect: '士兵招募時間減少[10/20/30]%' },
+  { name: '火速行軍', stars: 4, upgrade: true,  effect: '軍隊行軍時間減少[10/20/30]%' },
+  { name: '精進不懈', stars: 4, upgrade: true,  effect: '士兵訓練時間減少[30/45/60]%', req: '校場等級1' },
+  { name: '韜光養晦', stars: 4, upgrade: true,  effect: '糧倉和倉庫每級容量增加[500/1000/1500]', req: '糧倉等級1、倉庫等級1' },
+  { name: '招賢納士', stars: 3, upgrade: false, effect: '有[20/30/40]%的機率招募出2級士兵' },
+  { name: '徵募無阻', stars: 3, upgrade: true,  effect: '兵營的招募佇列+[3/6/9]' },
+  { name: '通商惠工', stars: 2, upgrade: false, effect: '每個商人的運輸量+1000，且運送時間減少[20/40/60]%' },
+  { name: '擴編協議', stars: 4, upgrade: false, effect: '軍隊上限+[1/2/3]' },
+  { name: '烽火支援', stars: 4, upgrade: false, effect: '要塞主城之間的行軍速度加速[4/5/6]倍' },
+  { name: '計日程功', stars: 4, upgrade: true,  effect: '所有地面建築修建和拆除的時間減少[40/60/80]%' },
+  { name: '超級賞金', stars: 5, upgrade: true,  effect: '寶箱開出的基礎資源獎勵增加[20/40/60]%' },
+  { name: '鑄火重燃', stars: 4, upgrade: true,  effect: '重鑄裝備時有[20/30/40]%機率免費重鑄一次', req: '鐵匠鋪等級1' },
+  { name: '坐吃利息', stars: 3, upgrade: true,  effect: '經驗書和鐵每天增加[2/4/8]%' },
+  { name: '書鐵多多', stars: 3, upgrade: true,  effect: '若當前經驗書或鐵超過100，則每天增加[5/10/15]%' },
+  { name: '人才濟濟', stars: 5, upgrade: true,  effect: '校場的訓練佇列+[3/6/9]', req: '校場等級1' },
+  { name: '守護之心', stars: 5, upgrade: false, effect: '哨塔的等級提高[3/6/9]級' },
+  { name: '農場大咖', stars: 4, upgrade: true,  effect: '農場每小時有[10/20/30]%機率產出經驗書或鐵' },
+  { name: '石場大咖', stars: 4, upgrade: true,  effect: '採石場每小時有[10/20/30]%機率產出鐵' },
+  { name: '木場大咖', stars: 4, upgrade: true,  effect: '伐木場每小時有[10/20/30]%機率產出經驗書' },
+  { name: '車水馬龍', stars: 3, upgrade: true,  effect: '醫館的治療佇列+[3/6/9]', req: '醫館等級1' },
+  { name: '精工巧築', stars: 3, upgrade: true,  effect: '所有地面建築上限+[2/3/4]' },
+  { name: '交能易作', stars: 3, upgrade: true,  effect: '每天和大自然置換次數+1，以及手續費減少[30/45/60]%' },
+  { name: '守衛光環', stars: 5, upgrade: true,  effect: '在我方領地戰鬥時士兵的最大生命+[15/20/30]%' },
+  { name: '進攻號角', stars: 5, upgrade: true,  effect: '在敵方領地戰鬥時士兵的攻擊力+[10/15/20]%' },
+  { name: '護甲專精', stars: 3, upgrade: false, effect: '所有士兵每級最大生命+[10/20/30]' },
+  { name: '武器專精', stars: 3, upgrade: false, effect: '所有士兵每級攻擊力+[1/2/3]' },
+  { name: '一級之力', stars: 4, upgrade: true,  effect: '所有1級士兵的最大生命和攻擊力+[10/15/20]%' },
+  { name: '坐收漁利', stars: 4, upgrade: true,  effect: '所在對局中淪陷人數達到10，可獲得[10/20/30]個卷軸或固定器' },
+  { name: '強取豪奪', stars: 4, upgrade: false, effect: '當攻陷一個玩家時可獲得其剩下[60/80/100]%的資源' },
+  { name: '風調雨順', stars: 3, upgrade: true,  effect: '屯田時間減少[20/40/60]%' },
+  { name: '天降甘霖', stars: 2, upgrade: false, effect: '屯田時獲得的寶箱數量+[1/2/3]' },
+  { name: '妙手回春', stars: 3, upgrade: true,  effect: '傷兵治療時間減少[10/20/30]%', req: '醫館等級1' },
+  { name: '懸壺濟世', stars: 2, upgrade: false, effect: '獲得[3/6/9]次免費治療傷兵', req: '醫館等級1' },
+  { name: '千錘百煉', stars: 3, upgrade: true,  effect: '獲得[3/6/9]次免費打造或重鑄裝備', req: '鐵匠鋪等級1' },
+  { name: '招兵買馬', stars: 3, upgrade: true,  effect: '獲得[10/20/30]次免費招募士兵' },
+  { name: '群賢畢至', stars: 5, upgrade: true,  effect: '獲得[10/20/30]次免費訓練士兵' },
+  { name: '一本萬利', stars: 5, upgrade: true,  effect: '立即獲得3個卷軸，在每個季節開始時獲得[3/6/9]個卷軸' },
+  { name: '基石永固', stars: 5, upgrade: true,  effect: '立即獲得3個固定器，在每個季節開始時獲得[3/6/9]個固定器' },
+  { name: '野怪剋星', stars: 4, upgrade: true,  effect: '所有士兵對野怪造成的傷害提高[20/30/50]%' },
+  { name: '攻堅能手', stars: 5, upgrade: true,  effect: '所有士兵有[30/40/50]%機率對建築造成的傷害+1' },
+  { name: '生生不息', stars: 3, upgrade: true,  effect: '所有士兵每回合恢復([1/2/3]x自身等級)的生命' },
+  { name: '強者為王', stars: 5, upgrade: true,  effect: '所有滿級士兵造成的傷害提高[10/15/20]%，受到的傷害減少[10/15/20]%' },
+  { name: '摧枯拉朽', stars: 4, upgrade: false, effect: '所有士兵攻擊比自身等級低的敵人時，傷害提高([10/15/20]x等級差)%' },
+  { name: '攻城略地', stars: 5, upgrade: false, effect: '立即解鎖投石車，且投石車對建築造成的傷害+[1/2/3]' },
+  { name: '城壘連鋒', stars: 4, upgrade: false, effect: '城牆和要塞以及哨塔連續攻擊同一目標時，每次傷害提高[5/10/15]%，至多疊加20次' },
+  { name: '槍兵專精', stars: 4, upgrade: true,  effect: '所有槍兵吸血+[10/20/30]%' },
+  { name: '盾兵專精', stars: 4, upgrade: true,  effect: '所有盾兵受到的傷害減少[15/25/35]%' },
+  { name: '弓兵專精', stars: 5, upgrade: true,  effect: '所有弓兵造成的傷害+[10/15/20]%' },
+  { name: '騎兵專精', stars: 4, upgrade: true,  effect: '所有騎兵最大生命和攻擊力+[8/12/16]%' },
 ];
 
 const SOLDIERS = [
@@ -646,6 +686,11 @@ function renderPoliciesFiltered() {
       </div>
       <div class="stars">${makeStars(p.stars)}</div>
       <div class="card-name">${p.name}</div>
+      ${p.effect ? `
+      <div class="card-tooltip">
+        <div class="card-effect">${p.effect}</div>
+        ${p.req ? `<div class="card-req">需要：${p.req}</div>` : ''}
+      </div>` : ''}
     </div>
   `).join('');
   document.getElementById('policy-count').textContent =
