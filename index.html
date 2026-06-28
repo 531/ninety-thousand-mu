@@ -7,6 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
   <script src="icons_data.js?v=4"></script>
   <script src="soldiers_data.js"></script>
+  <script src="skills_data.js?v=31"></script>
   <script src="equip_data.js"></script>
   <script src="portrait_data.js"></script>
   <style>
@@ -329,6 +330,244 @@
       width: 100%;
     }
 
+    /* 可點擊的士兵卡片提示 */
+    .card.has-detail { cursor: pointer; }
+    .card.has-detail::before {
+      content: 'ⓘ';
+      position: absolute;
+      top: 4px; right: 6px;
+      font-size: 13px;
+      color: var(--text-muted);
+      z-index: 2;
+    }
+    .card.has-detail .cat-badge ~ .icon-box { }
+
+    /* ── 士兵詳細視窗 ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(28, 12, 2, 0.78);
+      display: none;
+      align-items: flex-start;
+      justify-content: center;
+      z-index: 500;
+      padding: 40px 16px;
+      overflow-y: auto;
+    }
+    .modal-overlay.open { display: flex; }
+
+    .modal-box {
+      background: var(--surface);
+      border: 3px solid var(--border);
+      border-radius: 14px;
+      box-shadow: 6px 6px 0 var(--shadow);
+      width: 100%;
+      max-width: 420px;
+      padding: 20px;
+      position: relative;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 10px; right: 12px;
+      width: 30px; height: 30px;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface2);
+      color: var(--text-h);
+      font-size: 20px;
+      font-weight: 900;
+      cursor: pointer;
+      line-height: 1;
+    }
+    .modal-close:hover { background: var(--border); color: #fff; }
+
+    .modal-head {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+    .modal-icon {
+      width: 72px; height: 72px;
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      background: var(--surface2);
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .modal-icon img {
+      width: 100%; height: 100%;
+      image-rendering: pixelated;
+    }
+    .modal-name {
+      font-size: 22px;
+      font-weight: 900;
+      color: var(--text-h);
+    }
+    .modal-cat {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .modal-section-label {
+      font-size: 13px;
+      font-weight: 900;
+      color: var(--text-h);
+      background: var(--surface2);
+      border-left: 4px solid var(--header-rim);
+      padding: 4px 10px;
+      margin: 14px 0 8px;
+      border-radius: 0 4px 4px 0;
+    }
+
+    /* 等級切換列 */
+    .lvl-selector-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+    .lvl-selector-label {
+      font-size: 13px;
+      font-weight: 900;
+      color: var(--text-h);
+    }
+    .lvl-arrow {
+      width: 30px; height: 30px;
+      border: 2px solid var(--border);
+      border-radius: 7px;
+      background: var(--surface2);
+      color: var(--text-h);
+      font-size: 18px;
+      font-weight: 900;
+      font-family: inherit;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 0 3px;
+    }
+    .lvl-arrow:hover:not(:disabled) { background: var(--header-rim); color: #fff; }
+    .lvl-arrow:disabled { opacity: 0.35; cursor: default; }
+
+    .lvl-selector { display: flex; gap: 5px; flex-wrap: wrap; }
+    .lvl-btn {
+      width: 30px; height: 30px;
+      border: 2px solid var(--border);
+      border-radius: 7px;
+      background: var(--surface2);
+      color: var(--text-b);
+      font-size: 14px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      line-height: 1;
+    }
+    .lvl-btn:hover { background: var(--border); color: #fff; }
+    .lvl-btn.active {
+      background: var(--header-rim);
+      border-color: var(--shadow);
+      color: #fff;
+    }
+
+    .lvl-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .lvl-table th, .lvl-table td {
+      border: 1px solid var(--border);
+      padding: 5px 8px;
+      text-align: center;
+    }
+    .lvl-table th {
+      background: var(--surface2);
+      color: var(--text-h);
+      font-weight: 700;
+    }
+    .lvl-table td { color: var(--text-b); }
+    .lvl-table tr:nth-child(even) td { background: rgba(0,0,0,0.03); }
+    .lvl-table tr.cur td {
+      background: var(--gold-glow) !important;
+      font-weight: 900;
+      color: var(--text-h);
+    }
+
+    /* 技能描述中隨等級變動的數值 */
+    .skill-desc .lvl-val {
+      color: #C85A18;
+      font-weight: 900;
+      background: rgba(245,197,24,0.25);
+      padding: 0 3px;
+      border-radius: 3px;
+    }
+
+    .attr-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px 14px;
+    }
+    .attr-item {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      padding: 4px 8px;
+      background: var(--surface2);
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+    .attr-item .k { color: var(--text-muted); }
+    .attr-item .v { color: var(--text-h); font-weight: 700; }
+
+    .skill-list { display: flex; flex-direction: column; gap: 10px; }
+    .skill-card {
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      background: var(--surface2);
+    }
+    .skill-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 5px;
+    }
+    .skill-icon {
+      width: 36px; height: 36px;
+      border: 2px solid var(--border);
+      border-radius: 7px;
+      background: var(--surface);
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .skill-icon img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      image-rendering: pixelated;
+    }
+    .skill-name {
+      font-size: 15px;
+      font-weight: 900;
+      color: var(--text-h);
+    }
+    .skill-type {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 1px 7px;
+      border-radius: 4px;
+      color: #fff;
+    }
+    .skill-type.主動技能 { background: #C85A18; }
+    .skill-type.被動技能 { background: #5A7A30; }
+    .skill-desc {
+      font-size: 12.5px;
+      line-height: 1.6;
+      color: var(--text-b);
+    }
+
     /* ── WIP placeholder ── */
     .wip {
       text-align: center;
@@ -572,6 +811,41 @@
 
 <footer>九萬畝 玩家社群圖鑑 · 資料持續更新中</footer>
 
+<!-- 士兵詳細視窗 -->
+<div id="soldier-modal" class="modal-overlay">
+  <div class="modal-box">
+    <button class="modal-close" id="modal-close">×</button>
+    <div class="modal-head">
+      <div class="modal-icon"><img id="modal-img" alt=""></div>
+      <div class="modal-title">
+        <div class="modal-name" id="modal-name"></div>
+        <div class="modal-cat" id="modal-cat"></div>
+      </div>
+    </div>
+
+    <div class="lvl-selector-row" id="lvl-selector-row">
+      <span class="lvl-selector-label">等級</span>
+      <button class="lvl-arrow" id="lvl-prev" aria-label="上一級">‹</button>
+      <div class="lvl-selector" id="lvl-selector"></div>
+      <button class="lvl-arrow" id="lvl-next" aria-label="下一級">›</button>
+    </div>
+
+    <div class="modal-section-label" id="lvl-section-label">各等級數值</div>
+    <table class="lvl-table" id="lvl-table">
+      <thead>
+        <tr><th>等級</th><th>❤ 生命</th><th>⚔ 攻擊力</th></tr>
+      </thead>
+      <tbody id="lvl-body"></tbody>
+    </table>
+
+    <div class="modal-section-label">基礎屬性</div>
+    <div class="attr-grid" id="attr-grid"></div>
+
+    <div class="modal-section-label">技能</div>
+    <div class="skill-list" id="skill-list"></div>
+  </div>
+</div>
+
 <script>
 /* ── Data ── */
 const POLICIES = [
@@ -661,6 +935,252 @@ const SOLDIERS = [
   { name: '投石車',   stars: 5, cat: '攻城' },
   { name: '大弩車',   stars: 5, cat: '攻城' },
 ];
+
+/* ── 士兵詳細資料 ──
+   levels: [生命, 攻擊力] × 6 級
+   skills: { name, type, desc } */
+const SOLDIER_DETAIL = {
+  '長槍兵': {
+    levels: [[135,10],[167,12],[207,15],[257,19],[319,24],[396,30]],
+    rage: '4/6', atkRange: '1格', moveRange: '3格',
+    food: 2, speed: '62格/小時', costFactor: '99%',
+    skills: [
+      { name: '剋制騎兵', type: '被動技能', desc: '攻擊騎兵時，攻擊力提高40%，並無視20%減傷；被騎兵攻擊時，其攻擊力降低40%' },
+      { name: '刺擊', type: '主動技能', desc: '向目標方向刺擊2格，對至多4個敵方造成攻擊力[100/110/120/130/140/150]%的傷害，並恢復已損失生命值30%的生命' },
+    ],
+  },
+  '長矛兵': {
+    levels: [[104,12],[129,15],[160,19],[198,24],[246,30],[305,37]],
+    rage: '4/8', atkRange: '1格', moveRange: '3格',
+    food: 2, speed: '62格/小時', costFactor: '86%',
+    skills: [
+      { name: '剋制騎兵', type: '被動技能', desc: '攻擊騎兵時，攻擊力提高40%，並無視20%減傷；被騎兵攻擊時，其攻擊力降低40%' },
+      { name: '投射', type: '主動技能', desc: '對5格內最遠敵方進行一次投射，造成攻擊力[70/80/90/100/110/120]%的傷害' },
+    ],
+  },
+  '長戈兵': {
+    levels: [[88,8],[109,10],[135,12],[167,15],[207,19],[257,24]],
+    rage: '5/8', atkRange: '2格', moveRange: '2格',
+    food: 2, speed: '62格/小時', costFactor: '91%',
+    skills: [
+      { name: '剋制騎兵', type: '被動技能', desc: '攻擊騎兵時，攻擊力提高40%，並無視20%減傷；被騎兵攻擊時，其攻擊力降低40%' },
+      { name: '繳械', type: '主動技能', desc: '對目標造成攻擊力[100/105/110/115/120/125]%的傷害，並使其攻擊力降低[30/40/50/60/70/80]%持續3回合' },
+    ],
+  },
+  '陌刀兵': {
+    levels: [[94,'3-20'],[117,'4-25'],[145,'5-31'],[180,'6-38'],[223,'7-47'],[277,'9-58']],
+    rage: '0/0', atkRange: '1格', moveRange: '3格',
+    food: 2, speed: '62格/小時', costFactor: '99%',
+    skills: [
+      { name: '剋制騎兵', type: '被動技能', desc: '攻擊騎兵時，攻擊力提高40%，並無視20%減傷；被騎兵攻擊時，其攻擊力降低40%' },
+      { name: '不穩定攻擊', type: '被動技能', desc: '攻擊時造成[3-20/4-25/5-31/6-38/7-47/9-58]的隨機傷害，並無視[5/10/15/20/25/30]%的減傷' },
+      { name: '人馬俱碎', type: '被動技能', desc: '當目標是騎兵時則會造成[16-20/19-25/24-31/29-38/34-47/42-58]的隨機傷害' },
+    ],
+  },
+  '長劍兵': {
+    levels: [[177,9],[219,11],[272,14],[337,17],[418,21],[518,26]],
+    rage: '6/10', atkRange: '1格', moveRange: '3格',
+    food: 2, speed: '62格/小時', costFactor: '81%',
+    skills: [
+      { name: '剋制騎兵', type: '被動技能', desc: '攻擊騎兵時，攻擊力提高40%，並無視20%減傷；被騎兵攻擊時，其攻擊力降低40%' },
+      { name: '旋風斬', type: '主動技能', desc: '對2格內至多12個目標造成[45/50/55/60/65/70]%的傷害，並使目標流血，每回合造成攻擊力[45/50/55/60/65/70]%的真實傷害，持續3回合' },
+    ],
+  },
+  '雙槍兵': {
+    levels: [[125,11],[155,14],[192,17],[238,21],[295,26],[366,32]],
+    rage: '5/8', atkRange: '1格', moveRange: '3格',
+    food: 2, speed: '62格/小時', costFactor: '88%',
+    skills: [
+      { name: '剋制騎兵', type: '被動技能', desc: '攻擊騎兵時，攻擊力提高40%，並無視20%減傷；被騎兵攻擊時，其攻擊力降低40%' },
+      { name: '亂舞', type: '主動技能', desc: '突進到4格內敵人最多的地方亂舞，對2格內至多8個目標造成2段35%的傷害，並有[25/30/35/40/45/50]%機率招架普通攻擊傷害，持續1回合' },
+    ],
+  },
+  '刀盾兵': {
+    levels: [[265,6],[326,7],[401,9],[493,11],[606,14],[745,17]],
+    rage: '12/15', atkRange: '1格', moveRange: '3格',
+    food: 3, speed: '62格/小時', costFactor: '120%',
+    skills: [
+      { name: '剋制弓兵', type: '被動技能', desc: '攻擊弓兵時，攻擊力提高40%，並無視20%減傷；被弓兵攻擊時，其攻擊力降低40%' },
+      { name: '護盾', type: '主動技能', desc: '給5格內生命比最低的1名友方和自身施加一個抵擋[30/40/50/60/70/80]傷害的護盾，持續3回合，自身有該護盾時無法增長怒氣' },
+    ],
+  },
+  '重盾兵': {
+    levels: [[318,4],[391,5],[481,6],[592,7],[728,9],[895,11]],
+    rage: '10/16', atkRange: '1格', moveRange: '3格',
+    food: 3, speed: '62格/小時', costFactor: '140%',
+    skills: [
+      { name: '剋制弓兵', type: '被動技能', desc: '攻擊弓兵時，攻擊力提高40%，並無視20%減傷；被弓兵攻擊時，其攻擊力降低40%' },
+      { name: '立盾', type: '主動技能', desc: '受到的傷害減少[30/35/40/45/50/55]%，立盾狀態下不可移動、不可攻擊，且無法增長怒氣' },
+    ],
+  },
+  '槍盾兵': {
+    levels: [[278,5],[342,7],[421,9],[518,11],[637,13],[784,15]],
+    rage: '5/10', atkRange: '1格', moveRange: '3格',
+    food: 3, speed: '62格/小時', costFactor: '118%',
+    skills: [
+      { name: '剋制弓兵', type: '被動技能', desc: '攻擊弓兵時，攻擊力提高40%，並無視20%減傷；被弓兵攻擊時，其攻擊力降低40%' },
+      { name: '衝鋒', type: '主動技能', desc: '向5格內的最遠目標衝鋒，造成攻擊力[100/105/110/115/120/125]%的傷害，並格擋下一次攻擊傷害' },
+    ],
+  },
+  '錘盾兵': {
+    levels: [[239,5],[294,6],[362,7],[445,9],[547,11],[673,14]],
+    rage: '10/15', atkRange: '1格', moveRange: '3格',
+    food: 3, speed: '62格/小時', costFactor: '130%',
+    skills: [
+      { name: '剋制弓兵', type: '被動技能', desc: '攻擊弓兵時，攻擊力提高40%，並無視20%減傷；被弓兵攻擊時，其攻擊力降低40%' },
+      { name: '震地之錘', type: '主動技能', desc: '對2格內至多12個目標造成攻擊力70%的傷害，並有[50/60/70/80/90/100]%機率施加沉默效果，使其不能增漲怒氣和釋放技能，持續2回合' },
+    ],
+  },
+  '劍盾兵': {
+    levels: [[159,3],[194,4],[237,5],[289,6],[353,7],[431,8]],
+    rage: '8/15', atkRange: '1格', moveRange: '3格',
+    food: 3, speed: '62格/小時', costFactor: '81%',
+    skills: [
+      { name: '剋制弓兵', type: '被動技能', desc: '攻擊弓兵時，攻擊力提高40%，並無視20%減傷；被弓兵攻擊時，其攻擊力降低40%' },
+      { name: '見習勇士', type: '被動技能', desc: '每擊殺一個野豬騎士就會永久為所有劍盾兵提供一層突破，每層突破增加0.5攻擊和5生命，當前等級最高[10/20/30/40/50/100]層' },
+      { name: '守護之劍', type: '主動技能', desc: '對目標造成攻擊力[100/105/110/115/120/125]%的傷害，並獲得傷害80%的護盾，持續3回合' },
+    ],
+  },
+  '斧盾兵': {
+    levels: [[212,9],[261,12],[321,15],[395,18],[486,21],[598,24]],
+    rage: '6/8', atkRange: '1格', moveRange: '3格',
+    food: 3, speed: '62格/小時', costFactor: '72%',
+    skills: [
+      { name: '剋制弓兵', type: '被動技能', desc: '攻擊弓兵時，攻擊力提高40%，並無視20%減傷；被弓兵攻擊時，其攻擊力降低40%' },
+      { name: '旋轉飛斧', type: '主動技能', desc: '隨機選取4格內一個目標，向其扔出旋斧，造成攻擊力[75/80/85/90/95/100]%的傷害，並在目標3格內彈射1次' },
+      { name: '盾擊', type: '被動技能', desc: '若旋轉飛斧選取的目標在1格內，則不再扔出旋斧而是釋放盾擊，對其造成攻擊力[100/105/110/115/120/125]%的傷害，並有[25/30/35/40/45/50]%機率使目標眩暈1回合' },
+    ],
+  },
+  '長弓兵': {
+    levels: [[78,7],[86,9],[95,11],[105,13],[116,15],[128,17]],
+    rage: '6/8', atkRange: '4格', moveRange: '2格',
+    food: 3, speed: '62格/小時', costFactor: '118%',
+    skills: [
+      { name: '剋制槍兵', type: '被動技能', desc: '攻擊槍兵時，攻擊力提高40%，並無視20%減傷；被槍兵攻擊時，其攻擊力降低40%' },
+      { name: '散射', type: '主動技能', desc: '額外攻擊6格內的2個目標，造成[50/60/70/80/90/100]%的傷害' },
+    ],
+  },
+  '連弩兵': {
+    levels: [[117,6],[138,7],[163,8],[192,10],[227,12],[268,14]],
+    rage: '2/4', atkRange: '3格', moveRange: '3格',
+    food: 3, speed: '62格/小時', costFactor: '131%',
+    skills: [
+      { name: '剋制槍兵', type: '被動技能', desc: '攻擊槍兵時，攻擊力提高40%，並無視20%減傷；被槍兵攻擊時，其攻擊力降低40%' },
+      { name: '連射', type: '主動技能', desc: '對目標進行3次射擊，第1次造成100%的傷害，後續造成[45/50/55/60/65/70]%的傷害' },
+    ],
+  },
+  '毒弓兵': {
+    levels: [[76,5],[84,6],[92,7],[101,8],[111,9],[122,10]],
+    rage: '4/6', atkRange: '4格', moveRange: '2格',
+    food: 3, speed: '62格/小時', costFactor: '77%',
+    skills: [
+      { name: '剋制槍兵', type: '被動技能', desc: '攻擊槍兵時，攻擊力提高40%，並無視20%減傷；被槍兵攻擊時，其攻擊力降低40%' },
+      { name: '毒箭', type: '主動技能', desc: '對目標施加中毒效果，每回合造成最大生命值[1/1.5/2/2.5/3/3.5]%的真實傷害，並降低[55/60/65/70/75/80]%生命恢復，持續3回合，同一目標只會有一個中毒效果' },
+    ],
+  },
+  '獵人': {
+    levels: [[94,7],[103,8],[113,9],[124,10],[136,11],[150,12]],
+    rage: '12/12', atkRange: '4格', moveRange: '2格',
+    food: 3, speed: '62格/小時', costFactor: '78%',
+    skills: [
+      { name: '剋制槍兵', type: '被動技能', desc: '攻擊槍兵時，攻擊力提高40%，並無視20%減傷；被槍兵攻擊時，其攻擊力降低40%' },
+      { name: '狩獵', type: '被動技能', desc: '攻擊野獸時，攻擊力提高30%' },
+      { name: '鼓舞', type: '主動技能', desc: '鼓舞攻擊範圍內的所有友方，使攻擊力+[2/3/4/5/7/9]，持續3回合，同一目標只會有一個鼓舞效果，無法對器械鼓舞' },
+    ],
+  },
+  '強弩兵': {
+    levels: [[55,15],[58,19],[61,23],[64,27],[67,32],[70,38]],
+    rage: '0/0', atkRange: '5格', moveRange: '2格',
+    food: 3, speed: '62格/小時', costFactor: '126%',
+    skills: [
+      { name: '剋制槍兵', type: '被動技能', desc: '攻擊槍兵時，攻擊力提高40%，並無視20%減傷；被槍兵攻擊時，其攻擊力降低40%' },
+      { name: '拉弦', type: '被動技能', desc: '每次攻擊前需要一回合進行拉弦裝箭' },
+      { name: '滿弦', type: '被動技能', desc: '攻擊時與目標每相距一格，傷害提高[15/16/17/18/19/20]%' },
+    ],
+  },
+  '火弓兵': {
+    levels: [[78,6],[86,7],[95,8],[105,9],[116,10],[128,11]],
+    rage: '8/10', atkRange: '4格', moveRange: '2格',
+    food: 3, speed: '62格/小時', costFactor: '94%',
+    skills: [
+      { name: '剋制槍兵', type: '被動技能', desc: '攻擊槍兵時，攻擊力提高40%，並無視20%減傷；被槍兵攻擊時，其攻擊力降低40%' },
+      { name: '火箭', type: '主動技能', desc: '向7格內的敵方目標位置射出一支火箭，使其地面燃燒火焰，處於該位置的敵方每回合受到(攻擊力[55/60/65/70/75/80]%x火勢等級)的額外真實傷害' },
+      { name: '火勢', type: '被動技能', desc: '地面燃燒的火焰，每被觸發一次則火勢等級提升1級，到達3級時則開始下降，直到燃盡' },
+    ],
+  },
+  '劍騎兵': {
+    levels: [[155,14],[194,18],[243,23],[304,29],[380,36],[475,43]],
+    rage: '4/10', atkRange: '1格', moveRange: '4格',
+    food: 4, speed: '74格/小時', costFactor: '104%',
+    skills: [
+      { name: '剋制盾兵', type: '被動技能', desc: '攻擊盾兵時，攻擊力提高40%，並無視20%減傷；被盾兵攻擊時，其攻擊力降低40%' },
+      { name: '跳斬', type: '主動技能', desc: '跳向5格內生命值最少的一個目標進行斬擊，造成攻擊力[100/105/110/115/120/125]%外加目標已損失生命值10%的傷害' },
+    ],
+  },
+  '槍騎兵': {
+    levels: [[186,9],[233,11],[291,14],[364,18],[455,23],[569,29]],
+    rage: '6/10', atkRange: '1格', moveRange: '4格',
+    food: 4, speed: '74格/小時', costFactor: '108%',
+    skills: [
+      { name: '剋制盾兵', type: '被動技能', desc: '攻擊盾兵時，攻擊力提高40%，並無視20%減傷；被盾兵攻擊時，其攻擊力降低40%' },
+      { name: '橫掃', type: '主動技能', desc: '對3格內至多20個目標造成[45/50/55/60/65/70]%的傷害，若目標在1格內則傷害+30%' },
+    ],
+  },
+  '大刀騎兵': {
+    levels: [[126,18],[157,23],[197,29],[246,36],[308,44],[386,53]],
+    rage: '2/4', atkRange: '1格', moveRange: '4格',
+    food: 4, speed: '74格/小時', costFactor: '100%',
+    skills: [
+      { name: '剋制盾兵', type: '被動技能', desc: '攻擊盾兵時，攻擊力提高40%，並無視20%減傷；被盾兵攻擊時，其攻擊力降低40%' },
+      { name: '劈砍', type: '主動技能', desc: '劈砍目標，造成攻擊力[15/20/25/30/35/40]%的附加真實傷害，劈砍同一目標時附加真實傷害會疊加，直到切換目標' },
+    ],
+  },
+  '重騎兵': {
+    levels: [[256,8],[320,10],[400,13],[500,16],[625,20],[781,25]],
+    rage: '4/12', atkRange: '1格', moveRange: '4格',
+    food: 5, speed: '74格/小時', costFactor: '121%',
+    skills: [
+      { name: '剋制盾兵', type: '被動技能', desc: '攻擊盾兵時，攻擊力提高40%，並無視20%減傷；被盾兵攻擊時，其攻擊力降低40%' },
+      { name: '衝撞', type: '主動技能', desc: '朝目標方向衝撞2格，擊飛沿途的敵方目標並造成攻擊力[75/80/85/90/95/100]%的傷害，可破護盾和立盾' },
+    ],
+  },
+  '弓騎兵': {
+    levels: [[93,8],[112,10],[134,12],[161,14],[193,16],[232,18]],
+    rage: '2/6', atkRange: '4格', moveRange: '4格',
+    food: 4, speed: '74格/小時', costFactor: '110%',
+    skills: [
+      { name: '剋制盾兵', type: '被動技能', desc: '攻擊盾兵時，攻擊力提高20%，並無視10%減傷；被盾兵攻擊時，其攻擊力降低20%' },
+      { name: '騎射', type: '主動技能', desc: '向四周移動一格後射擊最近的目標，第1次造成100%的傷害，後續造成[30/40/50/60/70/80]%的傷害，最多可移動4次' },
+    ],
+  },
+  '斧騎兵': {
+    levels: [[202,10],[250,12],[310,15],[384,19],[476,24],[590,30]],
+    rage: '0/0', atkRange: '1格', moveRange: '4格',
+    food: 4, speed: '74格/小時', costFactor: '103%',
+    skills: [
+      { name: '剋制盾兵', type: '被動技能', desc: '攻擊盾兵時，攻擊力提高40%，並無視20%減傷；被盾兵攻擊時，其攻擊力降低40%' },
+      { name: '盾甲粉碎', type: '被動技能', desc: '攻擊有護盾的目標時，傷害提高[50/60/70/80/90/100]%' },
+      { name: '順劈', type: '被動技能', desc: '攻擊時有50%機率，對目標1格內至多4個敵方造成[45/50/55/60/65/70]%的傷害，視為普通攻擊，自身攻擊範圍大於1格時傷害減半' },
+    ],
+  },
+  '投石車': {
+    noLevel: true, hp: 50, atk: 15,
+    rage: '0/0', atkRange: '5格', moveRange: '1格',
+    food: 5, speed: '46格/小時', costFactor: '60%',
+    skills: [
+      { name: '剋制建築', type: '被動技能', desc: '攻擊建築時，攻擊力提高2' },
+    ],
+  },
+  '大弩車': {
+    noLevel: true, hp: 50, atk: 25,
+    rage: '0/0', atkRange: '5格', moveRange: '1格',
+    food: 5, speed: '46格/小時', costFactor: '80%',
+    skills: [
+      { name: '穿透', type: '被動技能', desc: '攻擊時額外造成目標最大生命值1%的傷害，目標是野怪時傷害提高3倍' },
+      { name: '急募', type: '被動技能', desc: '遣散時獲得1次加速招募' },
+    ],
+  },
+};
 
 /* ── Render helpers ── */
 function makeStars(n, max = 5) {
@@ -855,7 +1375,7 @@ function renderSoldiers() {
     : SOLDIERS.filter(s => s.cat === currentSoldierCat);
   const grid = document.getElementById('soldier-grid');
   grid.innerHTML = list.map(s => `
-    <div class="card cat-${s.cat}">
+    <div class="card cat-${s.cat}${SOLDIER_DETAIL[s.name] ? ' has-detail' : ''}" data-soldier="${s.name}">
       <div class="cat-badge ${s.cat}">${s.cat}</div>
       <div class="icon-box">
         <img src="${(typeof SOLDIER_DATA !== 'undefined' && SOLDIER_DATA[s.name]) || ''}" alt="${s.name}" onerror="this.style.display='none'">
@@ -864,6 +1384,9 @@ function renderSoldiers() {
       <div class="card-name">${s.name}</div>
     </div>
   `).join('');
+  grid.querySelectorAll('.card.has-detail').forEach(card => {
+    card.addEventListener('click', () => openSoldierModal(card.dataset.soldier));
+  });
   document.getElementById('soldier-count').textContent =
     `共 ${list.length} 名士兵${currentSoldierCat !== '全部' ? '（' + currentSoldierCat + '）' : ''}`;
 }
@@ -875,6 +1398,126 @@ document.querySelectorAll('#page-soldier .filter-btn').forEach(btn => {
     currentSoldierCat = btn.dataset.cat;
     renderSoldiers();
   });
+});
+
+/* ── 士兵詳細視窗 ── */
+let modalState = { detail: null, level: 1 };
+
+/* 將技能描述中的 [a/b/c/...] 換成所選等級的數值 */
+function fmtSkillDesc(desc, lvl) {
+  return desc.replace(/\[([^\]]+)\]/g, (m, grp) => {
+    const parts = grp.split('/');
+    const v = parts[lvl - 1] !== undefined ? parts[lvl - 1] : parts[parts.length - 1];
+    return `<span class="lvl-val">${v}</span>`;
+  });
+}
+
+function openSoldierModal(name) {
+  const d = SOLDIER_DETAIL[name];
+  if (!d) return;
+  const s = SOLDIERS.find(x => x.name === name) || {};
+  modalState = { detail: d, level: 1 };
+
+  document.getElementById('modal-img').src =
+    (typeof SOLDIER_DATA !== 'undefined' && SOLDIER_DATA[name]) || '';
+  document.getElementById('modal-name').textContent = name;
+  document.getElementById('modal-cat').textContent = s.cat || '';
+
+  const noLevel = !!d.noLevel;
+  const selRow = document.getElementById('lvl-selector-row');
+  const lvlLabel = document.getElementById('lvl-section-label');
+  const lvlTable = document.getElementById('lvl-table');
+
+  // 基礎屬性（不隨等級變動，渲染一次）；無等級單位把生命/攻擊力併入屬性
+  const attrs = noLevel
+    ? [['❤ 生命', d.hp], ['⚔ 攻擊力', d.atk],
+       ['怒氣', d.rage], ['攻擊範圍', d.atkRange],
+       ['移動範圍', d.moveRange], ['糧耗', d.food],
+       ['行軍速度', d.speed], ['費用係數', d.costFactor]]
+    : [['怒氣', d.rage], ['攻擊範圍', d.atkRange],
+       ['移動範圍', d.moveRange], ['糧耗', d.food],
+       ['行軍速度', d.speed], ['費用係數', d.costFactor]];
+  document.getElementById('attr-grid').innerHTML = attrs.map(([k, v]) =>
+    `<div class="attr-item"><span class="k">${k}</span><span class="v">${v}</span></div>`
+  ).join('');
+
+  if (noLevel) {
+    // 無等級：隱藏等級切換與等級表
+    selRow.style.display = 'none';
+    lvlLabel.style.display = 'none';
+    lvlTable.style.display = 'none';
+    modalState.level = 1;
+    renderModalLevel();
+  } else {
+    selRow.style.display = '';
+    lvlLabel.style.display = '';
+    lvlTable.style.display = '';
+    // 等級切換按鈕
+    document.getElementById('lvl-selector').innerHTML = d.levels.map((_, i) =>
+      `<button class="lvl-btn${i === 0 ? ' active' : ''}" data-lvl="${i + 1}">${i + 1}</button>`
+    ).join('');
+    document.querySelectorAll('#lvl-selector .lvl-btn').forEach(b => {
+      b.addEventListener('click', () => setModalLevel(parseInt(b.dataset.lvl)));
+    });
+    setModalLevel(1);
+  }
+
+  document.getElementById('soldier-modal').classList.add('open');
+}
+
+function setModalLevel(lvl) {
+  const d = modalState.detail;
+  if (!d || d.noLevel) return;  // 無等級單位不切換
+  const max = d.levels.length;
+  lvl = Math.max(1, Math.min(max, lvl));
+  modalState.level = lvl;
+  document.querySelectorAll('#lvl-selector .lvl-btn').forEach(b =>
+    b.classList.toggle('active', parseInt(b.dataset.lvl) === lvl));
+  document.getElementById('lvl-prev').disabled = (lvl === 1);
+  document.getElementById('lvl-next').disabled = (lvl === max);
+  renderModalLevel();
+}
+
+/* 依目前選擇的等級渲染數值表與技能 */
+function renderModalLevel() {
+  const d = modalState.detail, lvl = modalState.level;
+
+  if (!d.noLevel) {
+    document.getElementById('lvl-body').innerHTML = d.levels.map((lv, i) =>
+      `<tr class="${i + 1 === lvl ? 'cur' : ''}"><td>${i + 1}</td><td>${lv[0]}</td><td>${lv[1]}</td></tr>`
+    ).join('');
+  }
+
+  document.getElementById('skill-list').innerHTML = d.skills.map(sk => {
+    const icon = (typeof SKILL_DATA !== 'undefined' && SKILL_DATA[sk.name]) || '';
+    return `
+    <div class="skill-card">
+      <div class="skill-head">
+        ${icon ? `<div class="skill-icon"><img src="${icon}" alt="${sk.name}" onerror="this.parentElement.style.display='none'"></div>` : ''}
+        <span class="skill-name">${sk.name}</span>
+        <span class="skill-type ${sk.type}">${sk.type}</span>
+      </div>
+      <div class="skill-desc">${fmtSkillDesc(sk.desc, lvl)}</div>
+    </div>`;
+  }).join('');
+}
+
+function closeSoldierModal() {
+  document.getElementById('soldier-modal').classList.remove('open');
+}
+document.getElementById('modal-close').addEventListener('click', closeSoldierModal);
+document.getElementById('soldier-modal').addEventListener('click', e => {
+  if (e.target.id === 'soldier-modal') closeSoldierModal();
+});
+document.getElementById('lvl-prev').addEventListener('click', () => setModalLevel(modalState.level - 1));
+document.getElementById('lvl-next').addEventListener('click', () => setModalLevel(modalState.level + 1));
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeSoldierModal(); return; }
+  // 視窗開啟時，左右方向鍵切換等級
+  if (document.getElementById('soldier-modal').classList.contains('open')) {
+    if (e.key === 'ArrowLeft')  { setModalLevel(modalState.level - 1); e.preventDefault(); }
+    if (e.key === 'ArrowRight') { setModalLevel(modalState.level + 1); e.preventDefault(); }
+  }
 });
 
 /* ── Tab switch ── */
